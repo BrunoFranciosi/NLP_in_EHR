@@ -53,11 +53,9 @@ def aplicar_ner(texto):
         if entidade.label_ == 'DISEASE' and entidade.text.lower() not in ["doenças prévias"]:
             doencas.append(entidade.text)
         elif entidade.label_ == 'CHEMICAL':
-            # Verificar se a entidade contém apenas palavras irrelevantes
             if not all(palavra.lower() in palavras_irrelevantes for palavra in entidade.text.split()):
                 medicamentos.append(entidade.text)
     
-    # Remover duplicatas e manter a ordem
     doencas = list(dict.fromkeys(doencas))
     medicamentos = list(dict.fromkeys(medicamentos))
     
@@ -75,34 +73,25 @@ def processar_pdfs_em_tabelas(pasta_pdfs):
             caminho_pdf = os.path.join(pasta_pdfs, arquivo)
             print(f"Processando: {arquivo}")
             
-            # Extrair texto do PDF
             texto = extrair_texto_pdf(caminho_pdf)
             
-            # Extrair informações básicas
             nome, sexo, nascimento = extrair_informacoes_basicas(texto)
             
-            # Aplicar NER ao texto
             doencas, medicamentos = aplicar_ner(texto)
             
-            # Extrair Procedimentos e Vacinas
             procedimentos, vacinas = extrair_procedimentos_vacinas(texto)
             
-            # Adicionar informações do paciente
             pacientes.append({"Nome": nome, "Sexo": sexo, "Data de Nascimento": nascimento})
             
-            # Adicionar condições médicas
             for doenca in doencas:
                 condicoes.append({"Nome do Paciente": nome, "Condição Médica": doenca})
             
-            # Adicionar medicamentos
             for medicamento in medicamentos:
                 tratamentos.append({"Nome do Paciente": nome, "Medicamento": medicamento})
             
-            # Adicionar procedimentos
             for procedimento in procedimentos:
                 procedimentos_vacinas.append({"Nome do Paciente": nome, "Procedimento/Vacina": procedimento})
             
-            # Adicionar vacinas
             for vacina in vacinas:
                 procedimentos_vacinas.append({"Nome do Paciente": nome, "Procedimento/Vacina": vacina})
 
@@ -114,13 +103,10 @@ def processar_pdfs_em_tabelas(pasta_pdfs):
     
     return df_pacientes, df_condicoes, df_tratamentos, df_procedimentos_vacinas
 
-# Caminho para a pasta com PDFs
-pasta_pdfs = "C:\\Users\\Usuario\\Desktop\\TCCPLN\\pdf_output"
+pasta_pdfs = "C:\\Users\\Usuario\\Desktop\\NLP_IN_EHR\\pdf_output"
 
-# Processar os PDFs
 df_pacientes, df_condicoes, df_tratamentos, df_procedimentos_vacinas = processar_pdfs_em_tabelas(pasta_pdfs)
 
-# Salvar os DataFrames em arquivos CSV
 df_pacientes.to_csv("pacientes.csv", index=False)
 df_condicoes.to_csv("condicoes.csv", index=False)
 df_tratamentos.to_csv("tratamentos.csv", index=False)
